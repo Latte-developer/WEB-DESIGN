@@ -30,10 +30,78 @@
     </script>
 
     <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        
         body {
             font-family: 'Poppins', sans-serif;
             transition: background-color 0.5s ease, color 0.5s ease;
             overflow-x: hidden;
+            position:relative;
+        }
+        
+        /* animated gradient overlay, effect1 */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(0,243,255,0.12), transparent 70%), radial-gradient(circle at top right, rgba(188,19,254,0.08), transparent 60%);
+            pointer-events: none;
+            z-index: -1;
+            animation: bgShift 30s linear infinite;
+        }
+        .dark body::before {
+            background: radial-gradient(circle at center, rgba(255,255,255,0.08), transparent 70%), radial-gradient(circle at bottom left, rgba(0,0,0,0.06), transparent 60%);
+        }
+        /* effect2 variant when data-bg="2" */
+        body[data-bg="2"]::before {
+            background: radial-gradient(circle at top, rgba(255,255,255,0.15), transparent 80%), radial-gradient(circle at bottom right, rgba(0,0,0,0.1), transparent 70%);
+        }
+        .dark body[data-bg="2"]::before {
+            background: radial-gradient(circle at top, rgba(0,243,255,0.08), transparent 80%), radial-gradient(circle at bottom right, rgba(188,19,254,0.06), transparent 70%);
+        }
+
+        /* additional effect variants – rain, fireflies, fog, cherry blossoms */
+        body[data-bg="3"]::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -1;
+            background: linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px) repeat-y;
+            background-size: 100% 20px;
+            animation: rain 0.5s linear infinite;
+        }
+        .dark body[data-bg="3"]::after {
+            background: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px) repeat-y;
+        }
+        body[data-bg="5"]::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -1;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.2), transparent 70%);
+            animation: fog 20s linear infinite;
+        }
+        .dark body[data-bg="5"]::after {
+            background: radial-gradient(circle at center, rgba(0,0,0,0.2), transparent 70%);
+        }
+        @keyframes rain {
+            from {background-position:0 0;}
+            to {background-position:0 100%;}
+        }
+        @keyframes fog {
+            0% {opacity:0.3;}
+            50% {opacity:0.5;}
+            100% {opacity:0.3;}
+        }
+
+        @keyframes bgShift {
+            0% {background-position: 0% 0%, 100% 100%;}
+            50% {background-position: 100% 50%, 0% 50%;}
+            100% {background-position: 0% 0%, 100% 100%;}
         }
         
         /* Glassmorphism Card Style */
@@ -45,6 +113,83 @@
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
             border-radius: 1rem;
             transition: all 0.5s ease;
+        }
+        /* toolbar bar for header nav */
+        .toolbar {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 243, 255, 0.5);
+            border-radius: 9999px;
+            transition: background 0.3s ease, border-color 0.3s ease;
+            overflow-x: auto;
+        }
+        .toolbar .icon-btn {
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .toolbar .icon-btn:hover {
+            transform: scale(1.15);
+            box-shadow: 0 0 12px rgba(0, 243, 255, 0.6);
+        }
+        .toolbar .icon-btn:active {
+            transform: scale(1.05);
+        }
+        /* rotating toggle button for mobile toolbar switch */
+        #mobile-toolbar-toggle {
+            transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        #mobile-toolbar-toggle.rotated {
+            transform: rotate(360deg);
+        }
+        /* mobile toolbar sections */
+        .mobile-toolbar-section {
+            display: none;
+            padding: 0.75rem;
+            border-radius: 9999px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+        }
+        .mobile-toolbar-section.active {
+            display: flex;
+        }
+        .mobile-toolbar-section > div:first-child {
+            flex: 1;
+        }
+        @media (max-width: 640px) {
+            .toolbar {
+                padding: 0.5rem;
+                gap: 0;
+            }
+            /* hide desktop view on mobile */
+            #toolbar-main {
+                display: none;
+            }
+            /* show mobile toolbar groups */
+            #mobile-toolbars {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .toolbar .icon-btn {
+                width: 1.75rem;
+                height: 1.75rem;
+                font-size: 0.875rem;
+            }
+            .mobile-toolbar-section {
+                padding: 0.625rem;
+            }
+        }
+        @media (min-width: 641px) {
+            /* hide mobile toolbars on desktop */
+            #mobile-toolbars {
+                display: none;
+            }
         }
 
         .dark .glass-card {
@@ -61,6 +206,26 @@
         /* Neon Glows */
         .neon-text {
             text-shadow: 0 0 10px rgba(0, 243, 255, 0.7);
+        }
+
+        /* Nav link underline animation */
+        .nav-btn {
+            position: relative;
+            touch-action: manipulation; /* improve mobile responsiveness */
+        }
+        .nav-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: currentColor;
+            transition: width 0.3s ease;
+        }
+        .nav-btn:hover::after,
+        .nav-btn.text-cyberBlue::after {
+            width: 100%;
         }
         
         /* Smooth Tab Transitions */
@@ -88,10 +253,57 @@
             border: 1px solid rgba(255, 255, 255, 0.5);
             border-radius: 0.75rem;
             padding: 0.5rem;
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
         }
         .dark #mobile-menu {
             background: rgba(10, 15, 30, 0.6);
             border: 1px solid rgba(0, 243, 255, 0.2);
+        }
+
+        /* hide scrollbars and arrow buttons on scrollable containers */
+        #nav-links.no-scrollbar, #mobile-menu {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        #nav-links.no-scrollbar::-webkit-scrollbar,
+        #mobile-menu::-webkit-scrollbar {
+            display: none;
+            height: 0; width: 0;
+        }
+        /* also hide scrollbar buttons if they appear */
+        #nav-links.no-scrollbar::-webkit-scrollbar-button,
+        #mobile-menu::-webkit-scrollbar-button {
+            display: none;
+        }
+
+        /* firefly elements */
+        .firefly {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255,255,204,0.9);
+            border-radius: 50%;
+            filter: blur(1px);
+            animation: firefly 3s ease-in-out infinite, movefire 6s linear infinite;
+        }
+        @keyframes firefly {
+            0%,100% {opacity:0;}
+            50% {opacity:1;}
+        }
+        @keyframes movefire {
+            from {transform: translate(0,0);} to {transform: translate(20px,-20px);} /* subtle float */
+        }
+
+        .petal {
+            position: absolute;
+            font-size: 1.2rem;
+            opacity: 0.8;
+            animation: petalFall linear infinite;
+            pointer-events: none;
+        }
+        @keyframes petalFall {
+            0% {transform: translateY(-10%) rotate(0deg);} 
+            100% {transform: translateY(110%) rotate(360deg);}    
         }
     </style>
 </head>
@@ -102,40 +314,76 @@
     <!-- clock/visitor moved into nav for desktop -->
 
     <header class="fixed top-0 w-full z-40 mt-4 sm:mt-16 px-4">
-        <nav class="w-full max-w-screen-xl mx-auto glass-card px-6 py-3">
-            <!-- use column layout on mobile to stack clock and nav -->
-            <div class="flex flex-col sm:flex-row justify-between items-center">
-                <!-- clock/visits shown on all sizes, margin below on mobile -->
-                <div class="flex items-center gap-2 text-sm font-semibold mb-2 sm:mb-0">
+        <nav class="toolbar w-full max-w-screen-xl mx-auto px-6 py-3">
+            <!-- DESKTOP TOOLBAR (visible on sm+) -->
+            <div id="toolbar-main" class="flex justify-between items-center">
+                <!-- clock/visits -->
+                <div class="flex items-center gap-2 text-sm font-semibold">
                     <i class="fa-regular fa-clock text-cyberBlue"></i> <span id="realtime-clock">--:--:--</span> (GMT+7)
                     <span class="border-l border-gray-400 h-4"></span>
                     <i class="fa-solid fa-eye text-cyberPurple"></i> <span data-i18n="visits">Visits</span>: <span id="visitor-count">0</span>
                 </div>
 
-                <div class="flex justify-between items-center w-full sm:w-auto">
-                    <!-- desktop links -->
-                    <div id="nav-links" class="hidden sm:flex gap-4 overflow-x-auto no-scrollbar">
-                        <button class="nav-btn text-cyberBlue font-bold" data-target="home" data-i18n="nav_home">Home</button>
-                        <button class="nav-btn hover:text-cyberBlue transition-colors" data-target="about" data-i18n="nav_about">About</button>
-                        <button class="nav-btn hover:text-cyberBlue transition-colors" data-target="skills" data-i18n="nav_skills">Skills</button>
-                        <button class="nav-btn hover:text-cyberBlue transition-colors" data-target="projects" data-i18n="nav_projects">Projects</button>
-                        <button class="nav-btn hover:text-cyberBlue transition-colors" data-target="contact" data-i18n="nav_contact">Contact</button>
+                <!-- desktop nav links -->
+                <div id="nav-links" class="flex gap-6 flex-1 justify-center overflow-x-auto no-scrollbar">
+                    <button class="nav-btn text-cyberBlue font-bold" data-target="home" data-i18n="nav_home">Home</button>
+                    <button class="nav-btn hover:text-cyberBlue transition-colors" data-target="about" data-i18n="nav_about">About</button>
+                    <button class="nav-btn hover:text-cyberBlue transition-colors" data-target="skills" data-i18n="nav_skills">Skills</button>
+                    <button class="nav-btn hover:text-cyberBlue transition-colors" data-target="projects" data-i18n="nav_projects">Projects</button>
+                    <button class="nav-btn hover:text-cyberBlue transition-colors" data-target="contact" data-i18n="nav_contact">Contact</button>
+                </div>
+
+                <!-- toggle buttons -->
+                <div class="flex gap-4 items-center">
+                    <button id="lang-toggle" class="icon-btn hover:text-cyberBlue font-bold w-8 h-8 rounded-full border border-gray-400 dark:border-gray-600 flex items-center justify-center transition-all">EN</button>
+                    <button id="bg-toggle" class="icon-btn hover:text-cyberBlue w-8 h-8 rounded-full border border-gray-400 dark:border-gray-600 flex items-center justify-center transition-all" title="Switch background effects"><i class="fa-solid fa-layer-group"></i></button>
+                    <button id="theme-toggle" class="icon-btn hover:text-cyberBlue w-8 h-8 rounded-full border border-gray-400 dark:border-gray-600 flex items-center justify-center transition-all"><i class="fa-solid fa-moon"></i></button>
+                </div>
+            </div>
+
+            <!-- MOBILE TOOLBARS (visible on sm-) -->
+            <div id="mobile-toolbars" class="flex flex-col gap-3">
+                <!-- First mobile toolbar row -->
+                <div class="mobile-toolbar-section active justify-between items-center">
+                    <!-- clock/visits -->
+                    <div class="flex items-center gap-1.5 text-sm font-semibold">
+                        <i class="fa-regular fa-clock text-cyberBlue"></i> 
+                        <span id="realtime-clock-mobile">--:--:--</span>
+                        <span class="border-l border-gray-500 h-3"></span>
+                        <i class="fa-solid fa-eye text-cyberPurple"></i> 
+                        <span id="visitor-count-mobile">0</span>
                     </div>
+                    <!-- hamburger + lang + rotate toggle -->
+                    <div class="flex gap-1.5 items-center">
+                        <button id="mobile-menu-toggle" aria-expanded="false" aria-controls="mobile-menu" class="text-cyberBlue hover:text-cyan-300 w-7 h-7 flex items-center justify-center rounded-full border border-gray-500 dark:border-gray-500 transition-all" title="Navigation menu">
+                            <i class="fa-solid fa-bars transition-transform duration-300 ease-in-out text-base"></i>
+                        </button>
+                        <button id="lang-toggle-mobile" class="icon-btn hover:text-cyberBlue font-bold rounded-full border border-gray-500 dark:border-gray-500 transition-all text-xs">EN</button>
+                        <button id="mobile-toolbar-toggle" class="icon-btn hover:text-cyberBlue rounded-full border border-gray-500 dark:border-gray-500 transition-all text-base" title="Toggle controls">
+                            <i class="fa-solid fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
 
-                    <!-- mobile menu toggle -->
-                    <button id="mobile-menu-toggle" aria-expanded="false" aria-controls="mobile-menu" class="sm:hidden text-cyberBlue p-2">
-                        <i class="fa-solid fa-bars fa-lg transition-transform duration-300 ease-in-out"></i>
-                    </button>
-
-                    <div class="flex gap-4 items-center ml-2">
-                        <button id="lang-toggle" class="hover:text-cyberBlue font-bold w-8 h-8 rounded-full border border-gray-400 dark:border-gray-600 flex items-center justify-center transition-all">EN</button>
-                        <button id="theme-toggle" class="hover:text-cyberBlue w-8 h-8 rounded-full border border-gray-400 dark:border-gray-600 flex items-center justify-center transition-all"><i class="fa-solid fa-moon"></i></button>
+                <!-- Second mobile toolbar row (hidden by default) -->
+                <div class="mobile-toolbar-section justify-between items-center">
+                    <div class="text-sm text-gray-500">⚙️ Tools</div>
+                    <div class="flex gap-1.5 items-center">
+                        <button id="bg-toggle-mobile" class="icon-btn hover:text-cyberBlue rounded-full border border-gray-500 dark:border-gray-500 transition-all text-base" title="Background effects">
+                            <i class="fa-solid fa-layer-group"></i>
+                        </button>
+                        <button id="theme-toggle-mobile" class="icon-btn hover:text-cyberBlue rounded-full border border-gray-500 dark:border-gray-500 transition-all text-base">
+                            <i class="fa-solid fa-moon"></i>
+                        </button>
+                        <button id="mobile-toolbar-toggle-back" class="icon-btn hover:text-cyberBlue rounded-full border border-gray-500 dark:border-gray-500 transition-all text-base" title="Back">
+                            <i class="fa-solid fa-sync-alt"></i>
+                        </button>
                     </div>
                 </div>
             </div>
 
             <!-- mobile links dropdown with scale transition -->
-            <div id="mobile-menu" class="sm:hidden hidden flex-col gap-2 mt-2 transition-transform duration-300 ease-in-out transform scale-95">
+            <div id="mobile-menu" class="sm:hidden hidden flex-col gap-2 mt-2 transition-transform duration-300 ease-in-out transform scale-95 opacity-0">
                 <button class="nav-btn text-cyberBlue font-bold w-full text-left" data-target="home" data-i18n="nav_home">Home</button>
                 <button class="nav-btn hover:text-cyberBlue transition-colors w-full text-left" data-target="about" data-i18n="nav_about">About</button>
                 <button class="nav-btn hover:text-cyberBlue transition-colors w-full text-left" data-target="skills" data-i18n="nav_skills">Skills</button>
@@ -151,7 +399,7 @@
             <h1 class="text-5xl md:text-7xl font-bold mb-4 dark:text-white neon-text">Phan Bảo Trung</h1>
             <p class="text-xl md:text-2xl text-cyberBlue font-semibold mb-6">"Latte"</p>
             <p class="text-lg mb-8 max-w-2xl mx-auto dark:text-gray-300" data-i18n="home_desc">Aspiring Professional Programmer & Tech Enthusiast</p>
-            <button onclick="document.querySelector('[data-target=\'projects\']').click()" class="bg-transparent border-2 border-cyberBlue text-cyberBlue px-8 py-3 rounded-full font-bold hover:bg-cyberBlue hover:text-black transition-all shadow-[0_0_15px_rgba(0,243,255,0.3)] hover:shadow-[0_0_25px_rgba(0,243,255,0.6)]" data-i18n="btn_explore">
+            <button id="explore-btn" class="bg-transparent border-2 border-cyberBlue text-cyberBlue px-8 py-3 rounded-full font-bold hover:bg-cyberBlue hover:text-black transition-all shadow-[0_0_15px_rgba(0,243,255,0.3)] hover:shadow-[0_0_25px_rgba(0,243,255,0.6)]" data-i18n="btn_explore">
                 Explore Work
             </button>
         </section>
@@ -263,7 +511,7 @@ font-bold text-center mb-10 dark:text-white neon-text" data-i18n="title_projects
             <button id="close-modal" class="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
             <h3 class="text-2xl font-bold mb-4 text-cyberPurple" data-i18n="modal_title">Report a Bug</h3>
             <p class="text-sm dark:text-gray-300 mb-4" data-i18n="modal_desc">Please describe the issue you encountered.</p>
-            <textarea class="w-full bg-transparent border border-gray-500 rounded p-3 text-gray-800 dark:text-gray-200 focus:outline-none focus:border-cyberPurple h-32 mb-4" placeholder="Description..."></textarea>
+            <textarea id="bug-description" class="w-full bg-transparent border border-gray-500 rounded p-3 text-gray-800 dark:text-gray-200 focus:outline-none focus:border-cyberPurple h-32 mb-4" placeholder="Description..."></textarea>
             <button class="w-full bg-cyberPurple text-white py-2 rounded font-bold hover:bg-opacity-80 transition-colors" onclick="document.getElementById('close-modal').click()" data-i18n="modal_submit">Submit Report</button>
         </div>
     </div>
@@ -272,27 +520,66 @@ font-bold text-center mb-10 dark:text-white neon-text" data-i18n="title_projects
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     
     <script>
+        // --- 0. Mobile Toolbar Toggle System ---
+        const mobileToolbarToggle = document.getElementById('mobile-toolbar-toggle');
+        const mobileToolbarToggleBack = document.getElementById('mobile-toolbar-toggle-back');
+        const mobileToolbarSections = document.querySelectorAll('.mobile-toolbar-section');
+        let mobileToolbarPage = 0; // 0 = first, 1 = second
+        
+        function toggleMobileToolbar() {
+            mobileToolbarPage = mobileToolbarPage === 0 ? 1 : 0;
+            mobileToolbarSections.forEach((sec, idx) => {
+                if (idx === mobileToolbarPage) {
+                    sec.classList.add('active');
+                } else {
+                    sec.classList.remove('active');
+                }
+            });
+            mobileToolbarToggle.classList.toggle('rotated');
+            mobileToolbarToggleBack.classList.toggle('rotated');
+        }
+        if (mobileToolbarToggle) mobileToolbarToggle.addEventListener('click', toggleMobileToolbar);
+        if (mobileToolbarToggleBack) mobileToolbarToggleBack.addEventListener('click', toggleMobileToolbar);
+        
+        // sync mobile clock with desktop clock
+        function syncMobileTime() {
+            const desktopClock = document.getElementById('realtime-clock');
+            const mobileClock = document.getElementById('realtime-clock-mobile');
+            if (mobileClock && desktopClock) {
+                mobileClock.textContent = desktopClock.textContent;
+            }
+        }
+        // sync mobile visitor count with desktop
+        function syncMobileVisits() {
+            const desktopVisits = document.getElementById('visitor-count');
+            const mobileVisits = document.getElementById('visitor-count-mobile');
+            if (mobileVisits && desktopVisits) {
+                mobileVisits.textContent = desktopVisits.textContent;
+            }
+        }
+        
         // --- 1. Initialize AOS ---
         AOS.init({ duration: 800, once: false, mirror: true });
 
         // --- 2. Particles Configuration ---
         particlesJS('particles-js', {
             "particles": {
-                "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
+                "number": { "value": 60, "density": { "enable": true, "value_area": 800 } },
                 "color": { "value": ["#00f3ff", "#bc13fe"] },
-                "shape": { "type": "circle" },
-                "opacity": { "value": 0.5, "random": true },
-                "size": { "value": 3, "random": true },
+                "shape": { "type": ["circle","polygon"], "polygon": { "nb_sides": 5 } },
+                "opacity": { "value": 0.4, "random": true, "anim": {"enable": true, "speed": 0.5, "opacity_min": 0.1} },
+                "size": { "value": 4, "random": true, "anim": {"enable": true, "speed": 2, "size_min": 2} },
                 "line_linked": {
-                    "enable": true, "distance": 150, "color": "#ffffff", "opacity": 0.2, "width": 1
+                    "enable": true, "distance": 120, "color": "#00f3ff", "opacity": 0.25, "width": 1
                 },
-                "move": { "enable": true, "speed": 2, "direction": "none", "random": true, "out_mode": "out" }
+                "move": { "enable": true, "speed": 1.5, "direction": "none", "random": true, "straight": false, "out_mode": "out", "attract": {"enable": false}} 
             },
             "interactivity": {
                 "detect_on": "canvas",
                 "events": {
                     "onhover": { "enable": true, "mode": "grab" },
-                    "onclick": { "enable": true, "mode": "push" }
+                    "onclick": { "enable": true, "mode": "push" },
+                    "resize": true
                 },
                 "modes": { "grab": { "distance": 140, "line_linked": { "opacity": 1 } } }
             },
@@ -313,13 +600,19 @@ font-bold text-center mb-10 dark:text-white neon-text" data-i18n="title_projects
                 btn.classList.add('text-cyberBlue', 'font-bold');
                 btn.classList.remove('hover:text-cyberBlue');
 
-                // Switch section
+                // Smooth scroll to section
                 const target = btn.getAttribute('data-target');
+                const sectionElem = document.getElementById(target);
+                if (sectionElem) {
+                    sectionElem.scrollIntoView({ behavior: 'smooth' });
+                }
+
+                // Switch section state (for tab-content visibility)
                 sections.forEach(sec => {
                     sec.classList.remove('active');
                     if(sec.id === target) {
                         sec.classList.add('active');
-                        // Trigger skill bar animation if skills section
+                        // Trigger skill bar animation if skills section (click fallback)
                         if(target === 'skills') animateSkills();
                     }
                 });
@@ -336,6 +629,30 @@ font-bold text-center mb-10 dark:text-white neon-text" data-i18n="title_projects
             });
         });
 
+        // Intersection observer for skills animation when section enters viewport
+        const skillsSection = document.getElementById('skills');
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateSkills();
+                }
+            });
+        }, { threshold: 0.3 });
+        if (skillsSection) observer.observe(skillsSection);
+
+        // observer to update active nav based on scroll position
+        const sectionObserver = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                const id = entry.target.id;
+                const btn = document.querySelector(`.nav-btn[data-target="${id}"]`);
+                if (entry.isIntersecting && btn) {
+                    navBtns.forEach(b => b.classList.remove('text-cyberBlue','font-bold'));
+                    btn.classList.add('text-cyberBlue','font-bold');
+                }
+            });
+        }, { threshold: 0.6 });
+        sections.forEach(sec => sectionObserver.observe(sec));
+
         // --- mobile menu toggle logic ---
         const mobileToggle = document.getElementById('mobile-menu-toggle');
         const mobileMenu = document.getElementById('mobile-menu');
@@ -344,14 +661,18 @@ font-bold text-center mb-10 dark:text-white neon-text" data-i18n="title_projects
         mobileToggle.addEventListener('click', () => {
             const wasHidden = mobileMenu.classList.contains('hidden');
             if (wasHidden) {
-                // opening: show then scale up
+                // opening: show then scale up & fade in
                 mobileMenu.classList.remove('hidden');
                 setTimeout(() => {
                     mobileMenu.classList.remove('scale-95');
+                    mobileMenu.classList.remove('opacity-0');
+                    mobileMenu.classList.add('opacity-100');
                 }, 10);
             } else {
-                // closing: scale down then hide
+                // closing: scale down then hide & fade out
                 mobileMenu.classList.add('scale-95');
+                mobileMenu.classList.remove('opacity-100');
+                mobileMenu.classList.add('opacity-0');
                 setTimeout(() => {
                     mobileMenu.classList.add('hidden');
                 }, 300);
@@ -360,6 +681,23 @@ font-bold text-center mb-10 dark:text-white neon-text" data-i18n="title_projects
             mobileToggle.setAttribute('aria-expanded', !isHidden);
             mobileIcon.classList.toggle('rotate-90', !isHidden);
         });
+
+        // add explore button sequence behavior (redirect through tabs every 5s)
+        function exploreSequence() {
+            const order = ['home','about','skills','projects','contact'];
+            let idx = 1; // start with about
+            function next() {
+                if (idx < order.length) {
+                    const btn = document.querySelector(`.nav-btn[data-target="${order[idx]}"]`);
+                    if (btn) btn.click();
+                    idx++;
+                    if (idx < order.length) setTimeout(next, 5000);
+                }
+            }
+            next();
+        }
+        const exploreBtn = document.getElementById('explore-btn');
+        if (exploreBtn) exploreBtn.addEventListener('click', exploreSequence);
 
         // --- 4. Skill Bar Animation ---
         function animateSkills() {
@@ -370,18 +708,146 @@ font-bold text-center mb-10 dark:text-white neon-text" data-i18n="title_projects
             }, 100); // slight delay for smooth visual
         }
 
-        // --- 5. Theme Toggle System ---
+        // --- 5. Theme & background toggle system ---
         const themeBtn = document.getElementById('theme-toggle');
+        const bgBtn = document.getElementById('bg-toggle');
         const html = document.documentElement;
         
         // Default to dark mode based on initial HTML class
         let isDark = true;
-        
-        themeBtn.addEventListener('click', () => {
+        let bgEffect = 1;
+        document.body.dataset.bg = String(bgEffect);
+
+        function updateParticlesTheme() {
+            const colors = isDark ? ['#00f3ff', '#bc13fe'] : ['#ff6363', '#ffa600'];
+            if (window.pJSDom && window.pJSDom.length) {
+                window.pJSDom[0].pJS.particles.color.value = colors;
+                window.pJSDom[0].pJS.fn.particlesRefresh();
+            }
+        }
+
+        // overlay container reference used for dynamic effects
+        let overlayContainer = null;
+        function removeOverlayElements() {
+            if (overlayContainer) {
+                overlayContainer.remove();
+                overlayContainer = null;
+            }
+        }
+        function createFireflies() {
+            removeOverlayElements();
+            overlayContainer = document.createElement('div');
+            overlayContainer.id = 'overlay-container';
+            Object.assign(overlayContainer.style, {
+                position: 'fixed', top: '0', left: '0',
+                width: '100%', height: '100%',
+                pointerEvents: 'none', zIndex: '-1'
+            });
+            for (let i = 0; i < 30; i++) {
+                const f = document.createElement('div');
+                f.className = 'firefly';
+                f.style.left = Math.random() * 100 + '%';
+                f.style.top = Math.random() * 100 + '%';
+                f.style.animationDuration = 2 + Math.random() * 3 + 's';
+                overlayContainer.appendChild(f);
+            }
+            document.body.appendChild(overlayContainer);
+        }
+        function createPetals() {
+            removeOverlayElements();
+            overlayContainer = document.createElement('div');
+            overlayContainer.id = 'overlay-container';
+            Object.assign(overlayContainer.style, {
+                position: 'fixed', top: '0', left: '0',
+                width: '100%', height: '100%',
+                pointerEvents: 'none', zIndex: '-1', overflow: 'hidden'
+            });
+            for (let i = 0; i < 20; i++) {
+                const p = document.createElement('div');
+                p.className = 'petal';
+                p.textContent = '🌸';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.animationDuration = 4 + Math.random() * 4 + 's';
+                p.style.fontSize = 12 + Math.random() * 10 + 'px';
+                overlayContainer.appendChild(p);
+            }
+            document.body.appendChild(overlayContainer);
+        }
+
+        function updateParticlesEffect() {
+            if (!(window.pJSDom && window.pJSDom.length)) return;
+            const p = window.pJSDom[0].pJS.particles;
+            switch (bgEffect) {
+                case 3: // rain
+                    p.move.speed = 4;
+                    p.number.value = 200;
+                    p.shape.type = 'line';
+                    break;
+                case 4: // fireflies
+                    p.move.speed = 0.6;
+                    p.number.value = 30;
+                    p.shape.type = 'circle';
+                    break;
+                case 5: // fog
+                    p.move.speed = 0.2;
+                    p.number.value = 50;
+                    p.shape.type = 'circle';
+                    p.opacity.value = 0.2;
+                    break;
+                case 6: // cherry blossoms
+                    p.move.speed = 1;
+                    p.number.value = 60;
+                    p.shape.type = 'circle';
+                    break;
+                default:
+                    p.move.speed = bgEffect === 2 ? 0.8 : 1.5;
+                    p.number.value = 60;
+                    p.shape.type = ['circle','polygon'];
+                    p.opacity.value = 0.4;
+            }
+            window.pJSDom[0].pJS.fn.particlesRefresh();
+        }
+
+        function applyBgEffect() {
+            document.body.dataset.bg = String(bgEffect);
+            // handle custom overlays
+            switch (bgEffect) {
+                case 3: // rain
+                    removeOverlayElements();
+                    break;
+                case 4: createFireflies(); break;
+                case 5: removeOverlayElements(); break;
+                case 6: createPetals(); break;
+                default: removeOverlayElements();
+            }
+            updateParticlesEffect();
+        }
+
+        function cycleBackground() {
+            bgEffect = bgEffect % 6 + 1; // cycle through 1..6
+            applyBgEffect();
+        }
+
+        function toggleTheme() {
             isDark = !isDark;
             html.classList.toggle('dark', isDark);
-            themeBtn.innerHTML = isDark ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun text-yellow-500"></i>';
-        });
+            const newIcon = isDark ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun text-yellow-500"></i>';
+            themeBtn.innerHTML = newIcon;
+            const themeBtnMobile = document.getElementById('theme-toggle-mobile');
+            if (themeBtnMobile) themeBtnMobile.innerHTML = newIcon;
+            updateParticlesTheme();
+        }
+        themeBtn.addEventListener('click', toggleTheme);
+        const themeBtnMobile = document.getElementById('theme-toggle-mobile');
+        if (themeBtnMobile) themeBtnMobile.addEventListener('click', toggleTheme);
+        
+        bgBtn.addEventListener('click', cycleBackground);
+        const bgBtnMobile = document.getElementById('bg-toggle-mobile');
+        if (bgBtnMobile) bgBtnMobile.addEventListener('click', cycleBackground);
+        
+        // initialize
+        updateParticlesTheme();
+        applyBgEffect();
         // --- 6. Real-Time Clock (GMT+7) ---
         function updateClock() {
             const now = new Date();
@@ -391,7 +857,9 @@ font-bold text-center mb-10 dark:text-white neon-text" data-i18n="title_projects
             document.getElementById('realtime-clock').textContent = timeString;
         }
         setInterval(updateClock, 1000);
+        setInterval(syncMobileTime, 1000);
         updateClock();
+        syncMobileTime();
 
         // --- 7. Visitor Counter (localStorage) ---
         let visits = localStorage.getItem('portfolio_visits');
@@ -399,6 +867,7 @@ font-bold text-center mb-10 dark:text-white neon-text" data-i18n="title_projects
         else { visits = parseInt(visits) + 1; }
         localStorage.setItem('portfolio_visits', visits);
         document.getElementById('visitor-count').textContent = visits;
+        syncMobileVisits();
 
         // --- 8. Bug Report Modal Logic ---
         const bugBtn = document.getElementById('bug-btn');
@@ -407,6 +876,9 @@ font-bold text-center mb-10 dark:text-white neon-text" data-i18n="title_projects
         const modalContent = document.getElementById('bug-modal-content');
 
         bugBtn.addEventListener('click', () => {
+            // clear previous text and focus textarea
+            const desc = document.getElementById('bug-description');
+            if (desc) { desc.value = ''; desc.focus(); }
             bugModal.classList.remove('hidden');
             // Small delay to allow display:block to apply before animating opacity
             setTimeout(() => {
@@ -450,12 +922,14 @@ font-bold text-center mb-10 dark:text-white neon-text" data-i18n="title_projects
         };
 
         let currentLang = 'en';
-        const langBtn =
-document.getElementById('lang-toggle');
+        const langBtn = document.getElementById('lang-toggle');
+        const langBtnMobile = document.getElementById('lang-toggle-mobile');
 
-        langBtn.addEventListener('click', () => {
+        function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'vi' : 'en';
-            langBtn.textContent = currentLang.toUpperCase();
+            const newLangText = currentLang.toUpperCase();
+            langBtn.textContent = newLangText;
+            if (langBtnMobile) langBtnMobile.textContent = newLangText;
             
             document.querySelectorAll('[data-i18n]').forEach(elem => {
                 const key = elem.getAttribute('data-i18n');
@@ -463,6 +937,37 @@ document.getElementById('lang-toggle');
                     elem.textContent = translations[currentLang][key];
                 }
             });
+        }
+        langBtn.addEventListener('click', toggleLanguage);
+        if (langBtnMobile) langBtnMobile.addEventListener('click', toggleLanguage);
+
+        // --- back to top button ---
+        const backBtn = document.createElement('button');
+        backBtn.id = 'back-to-top';
+        backBtn.innerHTML = '<i class="fa-solid fa-chevron-up"></i>';
+        backBtn.className = 'fixed bottom-6 right-6 z-40 bg-cyberBlue text-white w-12 h-12 rounded-full shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 hover:bg-cyberPurple';
+        document.body.appendChild(backBtn);
+
+        backBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // throttle scroll updates via requestAnimationFrame to ensure stability
+        let isScrolling = false;
+        window.addEventListener('scroll', () => {
+            if (!isScrolling) {
+                window.requestAnimationFrame(() => {
+                    if (window.scrollY > 400) {
+                        backBtn.classList.remove('opacity-0','pointer-events-none');
+                        backBtn.classList.add('opacity-100');
+                    } else {
+                        backBtn.classList.add('opacity-0','pointer-events-none');
+                        backBtn.classList.remove('opacity-100');
+                    }
+                    isScrolling = false;
+                });
+                isScrolling = true;
+            }
         });
     </script>
 </body>
